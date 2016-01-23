@@ -7,7 +7,7 @@ HTMLWidgets.widget({
 
     d3.select(el).append("svg")
       .style("width", "100%")
-      .style("height", "100%")
+      .style("height", "100%");
       
     return d3.layout.tree();
 
@@ -28,17 +28,18 @@ HTMLWidgets.widget({
   },
 
   renderValue: function(el, x, tree) {
-	// x is a list with two elements, options and root; root must already be a
+	  // x is a list with two elements, options and root; root must already be a
     // JSON array with the d3Tree root data
-    var i = 0;
-    var duration = 750;
-   
-   var s = d3.select(el).selectAll("svg");
-
+    
     // margin handling
     //   set our default margin to be 20
     //   will override with x.options.margin if provided
-    var margin = {top: 20, right: 20, bottom: 20, left: 20};
+    var margin = {top: 20, right: 120, bottom: 20, left: 120},
+    width = 2000 - margin.right - margin.left,
+    height = 800 - margin.top - margin.bottom;
+    
+    tree.size([height, width]);
+    
     //   go through each key of x.options.margin
     //   use this value if provided from the R side
     Object.keys(x.options.margin).map(function(ky){
@@ -49,43 +50,52 @@ HTMLWidgets.widget({
       // commenting this out since not correct
       //s.style(["margin",ky].join("-"), margin[ky]);
     });
-
-   // tree.size([360, diameter/2])
-   //     .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
-
-    // select the svg group element and remove existing children
-   // s.attr("pointer-events", "all").selectAll("*").remove();
-   // s.append("g")
-   //  .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")"
-    //                     + " scale("+1+","+1+")");
-
-    var svg = d3.select(el).selectAll("g");
-
+    
+    var i = 0,
+    duration = 750;
+   
     var root = x.root;
-    var nodes = tree.nodes(root),
-        links = tree.links(nodes);
-	
-	console.log(x.root);
-    var diagonal = d3.svg.diagonal()
-                          .projection(function(d) { return [d.y, d.x]; });
+    root.x0 = height / 2;
+    root.y0 = 0;
     
+    var nodes = tree.nodes(root);
+    var links = tree.links(nodes);
     
-    console.log(diagonal);
+    var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
+    
+    var svg = d3.select(el).select("svg")
+                          .attr("width", width + margin.right + margin.left)
+                          .attr("height", height + margin.top + margin.bottom)
+                          .append("g")
+                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    //set link style
+	  svg.selectAll(".link").style("fill", "none")
+                  .style("stroke", "#ccc")
+                  .style("stroke-width", "0.8px");
+    //set node circle style
+    svg.selectAll(".node circle").style("fill", "#fff")
+                  .style("stroke", "steelblue")
+                  .style("stroke-width", "1.5px");
+    //set node text        
+    svg.selectAll(".node text").style("font", "15px sans-serif");
+                  
 
-    function collapse(d) {
-		if (d.children) {
-			d._children = d.children;
+     function collapse(d) {
+        if (d.children) {
+            d._children = d.children;
             d._children.forEach(collapse);
             d.children = null;
         }
-    }                          
-    
-    //root.children.forEach(collapse);
-     update(root); 
+      }
                           
-    
+     //root.children.forEach(collapse);
+     update(root);                      
+      
+     d3.select(self.frameElement).style("height", "800px");                      
                           
-    d3.select(self.frameElement).style("height", "800px");
+                          
+                          
 	
 	function update(source){
   
@@ -176,7 +186,7 @@ HTMLWidgets.widget({
 
 	// Toggle children on click.
 	function click(d) {
-	  Shiny.onInputChange("mydata", d.name);
+	  Shiny.onInputChange("nodeName", d.name);
 	  if (d.children) {
 		d._children = d.children;
 		d.children = null;

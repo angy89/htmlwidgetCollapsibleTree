@@ -82,6 +82,6 @@ as.collapsible.tree.list = function(hls,rootName){
   }
   
   n = length(nodes)
-  hls.list$name = rootName
+  hls$name = rootName
   return(nodes[[n]])
 }
