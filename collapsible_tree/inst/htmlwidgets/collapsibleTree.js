@@ -71,11 +71,35 @@ HTMLWidgets.widget({
     
     var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
     
+    var zoom = d3.behavior.zoom();
+    
     var svg = d3.select(el).select("svg")
                           .attr("width", width + margin.right + margin.left)
-                          .attr("height", height + margin.top + margin.bottom)
-                          .append("g")
-                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                          .attr("height", height + margin.top + margin.bottom);
+                          
+    // select the svg element and remove existing children
+    svg.selectAll("*").remove();     
+    // add two g layers; the first will be zoom target if zoom = T
+    //  fine to have two g layers even if zoom = F
+    svg = svg
+        .append("g").attr("class","zoom-layer")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+     // add zooming if requested
+   
+    function redraw() {
+        d3.select(el).select(".zoom-layer").attr("transform",
+          "translate(" + d3.event.translate + ")"+
+          " scale(" + d3.event.scale + ")");
+    }
+      
+    zoom.on("zoom", redraw);
+    d3.select(el).select("svg")
+                .attr("pointer-events", "all")
+                .call(zoom).on("dblclick.zoom", null);
+
+
 
      function collapse(d) {
         if (d.children) {
