@@ -53,7 +53,15 @@ HTMLWidgets.widget({
     
     var i = 0,
     duration = 750;
-   
+    
+    var options = x.options,
+    fontSize = options.fontSize,
+    fontFamily = options.fontFamily,
+    linkColour = options.linkColour,
+    nodeColour = options.nodeColour,
+    nodeStroke = options.nodeStroke,
+    textColour = options.textColour;
+        
     var root = x.root;
     root.x0 = height / 2;
     root.y0 = 0;
@@ -68,18 +76,6 @@ HTMLWidgets.widget({
                           .attr("height", height + margin.top + margin.bottom)
                           .append("g")
                           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    
-    //set link style
-	  svg.selectAll(".link").style("fill", "none")
-                  .style("stroke", "#ccc")
-                  .style("stroke-width", "0.8px");
-    //set node circle style
-    svg.selectAll(".node circle").style("fill", "#fff")
-                  .style("stroke", "steelblue")
-                  .style("stroke-width", "1.5px");
-    //set node text        
-    svg.selectAll(".node text").style("font", "15px sans-serif");
-                  
 
      function collapse(d) {
         if (d.children) {
@@ -91,6 +87,20 @@ HTMLWidgets.widget({
                           
      //root.children.forEach(collapse);
      update(root);                      
+    
+     //set link style
+	  svg.selectAll(".link").data(links).style("fill", "none")
+                                      .style("stroke", linkColour)
+                                      .style("stroke-width", "0.8px");
+    //set node circle style
+    svg.selectAll(".node").selectAll("circle")
+                          .style("fill", nodeColour)
+                          .style("stroke", nodeStroke)
+                          .style("stroke-width", "1.5px");
+    //set node text        
+    svg.selectAll(".node").selectAll("text")
+                          .style("font-family", fontFamily)
+                          .style("font-size",fontSize);  
       
      d3.select(self.frameElement).style("height", "800px");                      
                           
@@ -118,14 +128,17 @@ HTMLWidgets.widget({
 		  
 		  nodeEnter.append("circle")
 		  .attr("r", 1e-6)
-		  .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+		  .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+                          .style("stroke", nodeStroke)
+                          .style("stroke-width", "1.5px");
 		  
 		  nodeEnter.append("text")
 		  .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
 		  .attr("dy", ".35em")
 		  .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
 		  .text(function(d) { return d.name; })
-		  .style("fill-opacity", 1e-6);
+		  .style("fill-opacity", 1e-6).style("font-family", fontFamily)
+                          .style("font-size",fontSize);
 		  
 		  // Transition nodes to their new position.
 		  var nodeUpdate = node.transition()
@@ -153,7 +166,9 @@ HTMLWidgets.widget({
 		  
 		  // Update the links…
 		  var link = svg.selectAll("path.link")
-		  .data(links, function(d) { return d.target.id; });
+		  .data(links, function(d) { return d.target.id; }).style("fill", "none")
+                  .style("stroke", linkColour)
+                  .style("stroke-width", "0.8px");
 		  
 		  // Enter any new links at the parent's previous position.
 		  link.enter().insert("path", "g")
@@ -161,7 +176,9 @@ HTMLWidgets.widget({
 		  .attr("d", function(d) {
 		  var o = {x: source.x0, y: source.y0};
 		  return diagonal({source: o, target: o});
-		  });
+		  }).style("fill", "none")
+                  .style("stroke", linkColour)
+                  .style("stroke-width", "0.8px");
 		  
 		  // Transition links to their new position.
 		  link.transition()
