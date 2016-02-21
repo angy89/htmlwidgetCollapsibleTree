@@ -41,14 +41,14 @@ collapsibleTree <- function(
       width = width,
       height = height,
       htmlwidgets::sizingPolicy(padding = 10, browser.fill = TRUE),
-      package = "collapsibleTree")
+      package = "d3Widgets")
 }
 
 # Binding for shiny
 #' @export
 collapsibleTreeOutput <- function(outputId, width = "100%", height = "800px") {
     shinyWidgetOutput(outputId, "collapsibleTree", width, height,
-                        package = "collapsibleTree")
+                        package = "d3Widgets")
 					}
 
 #' @export
